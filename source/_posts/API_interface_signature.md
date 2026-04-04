@@ -53,7 +53,7 @@ API 签名是一种保障接口安全性的机制。其核心目的是：
 原始参数：
 appid=appId
 version=1.0.0
-timestamp=1716456789
+timestamp=1775271037
 nonce=abc123
 uid=1
 client_type=1
@@ -62,10 +62,10 @@ body={"userId":123,"action":"testAction"}
 secretKey=secretKey
 
 参与签名参数: {
-  "appid": "vgSKuLB5es8FLls",
+  "appid": "appId",
   "version": "1.0.0",
   "timestamp": 1775271037,
-  "nonce": "IyDyX956e9ka",
+  "nonce": "abc123",
   "uid": 1,
   "client_type": 1,
   "app_package": "com.baidu.www",
@@ -83,13 +83,13 @@ secretKey=secretKey
 拼接为key1=value1&key2=value2&...格式
 
 排序后拼接：
-app_package=com.baidu.www&appid=vgSKuLB5es8FLls&body={"userId":123,"action":"testAction"}&client_type=1&nonce=IyDyX956e9ka&timestamp=1775271037&uid=1&version=1.0.0
+app_package=com.baidu.www&appid=appId&body={"userId":123,"action":"testAction"}&client_type=1&nonce=abc123&timestamp=1775271037&uid=1&version=1.0.0
 
 
 HMAC-SHA256签名：
 signature = HMAC-SHA256(拼接字符串, secretKey)
 
-signature示例: 4c882e33dcec14057caf72f82e7cda91b355ec12f5325e82bd79dc1a3bfbd6eb
+signature示例: ae2e8ceaf5d0c16dce0b4ecb8fac93f86c3f2e77b0bfef3c08569d4ab6f13528
 
 ```
 
