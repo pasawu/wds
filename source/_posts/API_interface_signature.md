@@ -1,7 +1,7 @@
 ---
 title: API 接口签名验证机制
 date: 2025-5-24 08:35:14
-updated: 2025-5-27 11:20:30
+updated: 2026-4-4 10:46:09
 description: 接口签名验证机制详解（含 JS + PHP 示例）
 ---
 
@@ -26,11 +26,16 @@ API 签名是一种保障接口安全性的机制。其核心目的是：
 
 | 参数名           | 含义                 |
 | ------------- | ------------------ |
-| `X-App-Id`    | 应用标识（客户端ID）        |
-| `X-Version`   | API版本号             |
-| `X-Timestamp` | 请求时间戳（单位秒）         |
-| `X-Nonce`     | 随机字符串（防重放）         |
-| `X-Signature` | 签名值（HMAC-SHA256生成） |
+| `x-app-id`    | 应用标识（客户端ID）        |
+| `x-version`   | API版本号             |
+| `x-timestamp` | 请求时间戳（单位秒）         |
+| `x-nonce`     | 随机字符串（防重放）         |
+| `x-signature` | 签名值（HMAC-SHA256生成） |
+| `x-uid` | 缓存本地随机0-1000生成退出登录不改变 |
+| `x-app-package` | 包名com.baidu.www |
+| `x-client-type` | 客户端类型: 0=未知, 1=H5, 2=微信小程序, 3=安卓, 4=IOS, 5=鸿蒙 |
+
+可根据实际新增删减
 
 请求体（body）也会作为签名的一部分参与计算。
 
@@ -50,26 +55,41 @@ appid=appId
 version=1.0.0
 timestamp=1716456789
 nonce=abc123
+uid=1
+client_type=1
+app_package=com.baidu.www
 body={"userId":123,"action":"testAction"}
 secretKey=secretKey
+
+参与签名参数: {
+  "appid": "vgSKuLB5es8FLls",
+  "version": "1.0.0",
+  "timestamp": 1775271037,
+  "nonce": "IyDyX956e9ka",
+  "uid": 1,
+  "client_type": 1,
+  "app_package": "com.baidu.www",
+  "body": "{\"userId\":123,\"action\":\"testAction\"}"
+}
 
 注意：body如果为空就赋值"{}",body={}
 
 将请求体（如 JSON）序列化为字符串，忽略undefined、function等非法类型
 
-按参数名字母序排序（如appid→body→nonce→timestamp→version）
+按参数名字母序排序（如app_package→appid→body→client_type→nonce→timestamp→uid→version）
 
 生成签名字符串
 
 拼接为key1=value1&key2=value2&...格式
 
 排序后拼接：
-appid=appId&body={"userId":123,"action":"testAction"}&nonce=abc123&timestamp=1716456789&version=1.0.0
+app_package=com.baidu.www&appid=vgSKuLB5es8FLls&body={"userId":123,"action":"testAction"}&client_type=1&nonce=IyDyX956e9ka&timestamp=1775271037&uid=1&version=1.0.0
+
 
 HMAC-SHA256签名：
 signature = HMAC-SHA256(拼接字符串, secretKey)
 
-signature示例: c8313008af78b064d700de24c5d15cee2ab6a14e6f506930656faa73668419f4
+signature示例: 4c882e33dcec14057caf72f82e7cda91b355ec12f5325e82bd79dc1a3bfbd6eb
 
 ```
 
@@ -84,7 +104,7 @@ signature示例: c8313008af78b064d700de24c5d15cee2ab6a14e6f506930656faa73668419f
 <html>
 <head>
     <title>签名测试</title>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.7.2/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
@@ -102,6 +122,9 @@ signature示例: c8313008af78b064d700de24c5d15cee2ab6a14e6f506930656faa73668419f
     function generateSignature(config, data) {
         const timestamp = Math.floor(Date.now() / 1000);
         const nonce = generateUniqueId();
+        const uid = 1;
+        const client_type = 1;
+        const app_package = 'com.baidu.www';
 
         // 保持原始JSON顺序
         const bodyStr = data ? JSON.stringify(data, jsonSafeReplacer) : '';
@@ -112,6 +135,9 @@ signature示例: c8313008af78b064d700de24c5d15cee2ab6a14e6f506930656faa73668419f
             version: config.version,
             timestamp: timestamp,
             nonce: nonce,
+            uid: uid,
+            client_type: client_type,
+            app_package: app_package,
             body: bodyStr
         };
 
@@ -135,11 +161,14 @@ signature示例: c8313008af78b064d700de24c5d15cee2ab6a14e6f506930656faa73668419f
 
         return {
             headers: {
-                'X-App-Id': config.appId,
-                'X-Version': config.version,
-                'X-Timestamp': timestamp,
-                'X-Nonce': nonce,
-                'X-Signature': signature
+                'x-app-Id': config.appId,
+                'x-version': config.version,
+                'x-timestamp': timestamp,
+                'x-nonce': nonce,
+                'x-signature': signature,
+                'x-client-type': client_type,
+                'x-uid': uid,
+                'x-app-package': app_package,
             },
             body: bodyStr
         };
@@ -207,7 +236,7 @@ signature示例: c8313008af78b064d700de24c5d15cee2ab6a14e6f506930656faa73668419f
 <?php
 /**
  * Created by PhpStorm.
- * User: wds
+ * User: Pasa吴 <476460973@qq.com>
  * Date: 2025/5/23
  * Time: 16:33
  */
@@ -216,24 +245,38 @@ namespace utils;
 
 class Signature
 {
-    private $expireTime = 600;
-    private $appId      = "appId";
-    private $secretKey  = "secretKey";
+    public  $expireTime = 600;
+    private $appId;
+    private $secretKey;
     private $success    = 200;
     private $error      = 400;
 
-    //检验sign是否正确
+    public function __construct(string $appId, string $secretKey)
+    {
+        $this->appId     = $appId;
+        $this->secretKey = $secretKey;
+    }
+
+    /**
+     * 验证签名
+     * @param array  $header
+     * @param string $body
+     * @return array
+     */
     public function verifySign(array $header, string $body)
     {
         // 获取请求头参数
-        $appid     = $header['X-App-Id'] ?? '';
-        $version   = $header['X-Version'] ?? '';
-        $nonce     = $header['X-Nonce'] ?? '';
-        $timestamp = $header['X-Timestamp'] ?? 0;
-        $signature = $header['X-Signature'] ?? '';
+        $appid       = $header['x-app-id'] ?? '';
+        $version     = $header['x-version'] ?? '';
+        $nonce       = $header['x-nonce'] ?? '';
+        $timestamp   = $header['x-timestamp'] ?? 0;
+        $signature   = $header['x-signature'] ?? '';
+        $uid         = $header['x-uid'] ?? '';
+        $client_type = $header['x-client-type'] ?? '';
+        $app_package = $header['x-app-package'] ?? '';
 
         // 基础验证
-        if (!$appid || !$version || !$nonce || !$timestamp || !$signature) {
+        if (!$appid || !$version || !$nonce || !$timestamp || !$signature || !$uid || !$client_type || !$app_package) {
             return ['code' => $this->error, 'msg' => 'Missing authentication headers'];
         }
         // 应用ID有效性验证
@@ -251,19 +294,19 @@ class Signature
         // }
         //Cache::set('api_nonce:'.$nonce, 1, $this->expireTime);
 
-        
         if (empty($body)) {
             $body = "{}";
         }
-
-
         // 生成服务端签名
         $serverSign = $this->generateSign([
-            'appid'     => $appid,
-            'version'   => $version,
-            'timestamp' => $timestamp,
-            'nonce'     => $nonce,
-            'body'      => $body // 请求体
+            'appid'       => $appid,
+            'version'     => $version,
+            'timestamp'   => $timestamp,
+            'nonce'       => $nonce,
+            'uid'         => $uid,
+            'client_type' => $client_type,
+            'app_package' => $app_package,
+            'body'        => $body // 请求体
         ]);
 
         // 签名比对
