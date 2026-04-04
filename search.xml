@@ -62,74 +62,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>手动编译安装Swoole扩展</title>
-    <url>/2025/04/20/install_swoole_extension/</url>
-    <content><![CDATA[<h3 id="swoole-curl-setopt-option-10100-is-not-supported解决"><a href="#swoole-curl-setopt-option-10100-is-not-supported解决" class="headerlink" title="swoole_curl_setopt(): option[10100] is not supported解决"></a>swoole_curl_setopt(): option[10100] is not supported解决</h3><h3 id="安装-Swoole-扩展并启用-CURL-支持"><a href="#安装-Swoole-扩展并启用-CURL-支持" class="headerlink" title="安装 Swoole 扩展并启用 CURL 支持"></a>安装 Swoole 扩展并启用 CURL 支持</h3><p>在宝塔面板中，PHP 通常位于 <code>/www/server/php/你的PHP版本/bin</code> 目录下，例如 <code>/www/server/php/82/bin/phpize</code>。你需要根据你安装的 PHP 版本调整命令。</p>
-<h4 id="1-下载-Swoole-源码"><a href="#1-下载-Swoole-源码" class="headerlink" title="1. 下载 Swoole 源码"></a>1. <strong>下载 Swoole 源码</strong></h4><p>从 <a href="https://github.com/swoole/swoole-src/releases">Swoole GitHub</a> 下载最新的源码包。选择 <code>Source code(tar.gz)</code> 格式的文件进行下载。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget https://github.com/swoole/swoole-src/archive/refs/tags/v6.0.2.tar.gz</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-解压源码包"><a href="#2-解压源码包" class="headerlink" title="2. 解压源码包"></a>2. <strong>解压源码包</strong></h4><p>假设你已经下载了 <code>swoole-src-6.0.2.tar.gz</code> 文件，首先进入 PHP 安装目录：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /www/server/php/82</span><br></pre></td></tr></table></figure>
-
-<p>然后解压下载的 Swoole 源码包：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tar -zxvf swoole-src-6.0.2.tar.gz</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-进入源码目录"><a href="#3-进入源码目录" class="headerlink" title="3. 进入源码目录"></a>3. <strong>进入源码目录</strong></h4><p>解压后，进入 Swoole 源码目录：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> swoole-src-6.0.2</span><br></pre></td></tr></table></figure>
-
-<h4 id="4-执行-phpize"><a href="#4-执行-phpize" class="headerlink" title="4. 执行 phpize"></a>4. <strong>执行 phpize</strong></h4><p>在编译 Swoole 扩展之前，需要先执行 <code>phpize</code> 命令来准备 PHP 扩展的编译环境。<code>phpize</code> 是 PHP 提供的一个工具，用于准备 PHP 扩展的编译过程，生成必要的配置文件。执行命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/www/server/php/82/bin/phpize</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>原理</strong>：<code>phpize</code>是PHP扩展开发工具，作用是将Swoole源码转换为PHP可识别的扩展模块。需使用对应PHP版本的phpize，否则会出现ABI版本不匹配错误。<code>phpize</code> 会检测当前的 PHP 环境并生成一个 <code>configure</code> 脚本，使得 Swoole 能够与 PHP 正常兼容。</p>
-</blockquote>
-<h4 id="5-配置编译选项"><a href="#5-配置编译选项" class="headerlink" title="5. 配置编译选项"></a>5. <strong>配置编译选项</strong></h4><p>执行 <code>configure</code> 命令时，加入 <code>--enable-swoole-curl</code> 参数来启用原生的 CURL 支持。并通过 <code>--with-php-config</code> 指定 PHP 配置工具的路径。执行以下命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure --enable-swoole-curl --enable-openssl --with-php-config=/www/server/php/82/bin/php-config</span><br><span class="line">  make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>原理</strong>：<code>--enable-swoole-curl</code> 参数启用了 Swoole 扩展中的 CURL 支持，<code>--with-php-config</code> 则指定了 PHP 配置工具的路径，确保编译过程中 PHP 的正确配置,通过configure脚本生成Makefile，参数决定扩展功能和依赖库绑定方式。使用系统CURL可避免自研实现的兼容性问题。</p>
-</blockquote>
-<h4 id="6-编译和安装"><a href="#6-编译和安装" class="headerlink" title="6. 编译和安装"></a>6. <strong>编译和安装</strong></h4><p>完成配置后，执行 <code>make</code> 和 <code>make install</code> 命令来编译并安装 Swoole 扩展：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>原理</strong>：<code>make</code> 会编译 Swoole 扩展，<code>make install</code> 会将编译好的扩展安装到 PHP 扩展目录中。如果编译顺利，你会看到类似以下的输出，表示安装成功。</p>
-</blockquote>
-<p>如果编译时提示缺少 OpenSSL 开发库，需要先安装：</p>
-<p>CentOS&#x2F;RHEL:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install openssl-devel</span><br></pre></td></tr></table></figure>
-
-<p>Ubuntu&#x2F;Debian:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">apt-get install libssl-dev</span><br></pre></td></tr></table></figure>
-
-<p>在 <code>/www/server/php/82/lib/php/extensions/no-debug-non-zts-20220829</code> 目录下，你会看到 <code>swoole.so</code> 文件：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /www/server/php/82/lib/php/extensions/no-debug-non-zts-20220829</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">fileinfo.so  igbinary.so  opcache.so  redis.so  swoole.so  zip.so</span><br></pre></td></tr></table></figure>
-
-<h4 id="7-修改-PHP-配置文件"><a href="#7-修改-PHP-配置文件" class="headerlink" title="7. 修改 PHP 配置文件"></a>7. <strong>修改 PHP 配置文件</strong></h4><p>在 PHP 配置文件中加载 Swoole 扩展。编辑 PHP 8.2 的 <code>php.ini</code> 文件，通常位于 <code>/www/server/php/82/etc/php.ini</code>，添加以下内容：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">extension=swoole.so</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>原理</strong>：这行配置指示 PHP 加载 <code>swoole.so</code> 扩展，以便 Swoole 扩展能够在 PHP 中生效。</p>
-</blockquote>
-<h4 id="8-重启-PHP-服务"><a href="#8-重启-PHP-服务" class="headerlink" title="8. 重启 PHP 服务"></a>8. <strong>重启 PHP 服务</strong></h4><p>修改完 <code>php.ini</code> 文件后，重启 PHP 服务以应用更改：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">service php-fpm restart</span><br></pre></td></tr></table></figure>
-
-<p>或者通过宝塔面板重启 PHP 服务。</p>
-<h4 id="9-验证安装"><a href="#9-验证安装" class="headerlink" title="9. 验证安装"></a>9. <strong>验证安装</strong></h4><p>执行以下命令来确认 Swoole 是否安装成功：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">php -m | grep swoole</span><br></pre></td></tr></table></figure>
-<p>如果输出 <code>swoole</code>，说明安装成功。</p>
-<p>验证是否成功启用 OpenSSL：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">php --ri swoole | grep openssl</span><br></pre></td></tr></table></figure>
-
-<p>应该能看到 openssl support &#x3D;&gt; enabled 的输出。</p>
-<hr>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>通过上述步骤，你就能成功地编译并安装带有 CURL 支持的 Swoole 扩展。重要的是，确保在 <code>configure</code> 命令中添加了 <code>--enable-swoole-curl</code> 参数，这样可以启用原生 CURL 支持。编译过程中，<code>phpize</code> 和 <code>php-config</code> 工具的使用非常关键，它们帮助你确保扩展能够正确编译并与 PHP 配置兼容。</p>
-<p>如遇到编译错误，请检查系统是否已安装 PHP 开发包和相关依赖库。</p>
-]]></content>
-  </entry>
-  <entry>
     <title>API 接口签名验证机制</title>
     <url>/2025/05/24/API_interface_signature/</url>
     <content><![CDATA[<h2 id="✨-一、什么是-API-接口签名验证？"><a href="#✨-一、什么是-API-接口签名验证？" class="headerlink" title="✨ 一、什么是 API 接口签名验证？"></a>✨ 一、什么是 API 接口签名验证？</h2><p>API 签名是一种保障接口安全性的机制。其核心目的是：</p>
@@ -198,6 +130,74 @@
 <hr>
 <h3 id="后端验签逻辑（PHP）"><a href="#后端验签逻辑（PHP）" class="headerlink" title="后端验签逻辑（PHP）"></a>后端验签逻辑（PHP）</h3><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by PhpStorm.</span></span><br><span class="line"><span class="comment"> * User: Pasa吴 &lt;476460973<span class="doctag">@qq</span>.com&gt;</span></span><br><span class="line"><span class="comment"> * Date: 2025/5/23</span></span><br><span class="line"><span class="comment"> * Time: 16:33</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">utils</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Signature</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span>  <span class="variable">$expireTime</span> = <span class="number">600</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$appId</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$secretKey</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$success</span>    = <span class="number">200</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$error</span>      = <span class="number">400</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="keyword">string</span> <span class="variable">$appId</span>, <span class="keyword">string</span> <span class="variable">$secretKey</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;appId     = <span class="variable">$appId</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;secretKey = <span class="variable">$secretKey</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 验证签名</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> array  $header</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $body</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> array</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">verifySign</span>(<span class="params"><span class="keyword">array</span> <span class="variable">$header</span>, <span class="keyword">string</span> <span class="variable">$body</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// 获取请求头参数</span></span><br><span class="line">        <span class="variable">$appid</span>       = <span class="variable">$header</span>[<span class="string">&#x27;x-app-id&#x27;</span>] ?? <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">        <span class="variable">$version</span>     = <span class="variable">$header</span>[<span class="string">&#x27;x-version&#x27;</span>] ?? <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">        <span class="variable">$nonce</span>       = <span class="variable">$header</span>[<span class="string">&#x27;x-nonce&#x27;</span>] ?? <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">        <span class="variable">$timestamp</span>   = <span class="variable">$header</span>[<span class="string">&#x27;x-timestamp&#x27;</span>] ?? <span class="number">0</span>;</span><br><span class="line">        <span class="variable">$signature</span>   = <span class="variable">$header</span>[<span class="string">&#x27;x-signature&#x27;</span>] ?? <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">        <span class="variable">$uid</span>         = <span class="variable">$header</span>[<span class="string">&#x27;x-uid&#x27;</span>] ?? <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">        <span class="variable">$client_type</span> = <span class="variable">$header</span>[<span class="string">&#x27;x-client-type&#x27;</span>] ?? <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">        <span class="variable">$app_package</span> = <span class="variable">$header</span>[<span class="string">&#x27;x-app-package&#x27;</span>] ?? <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 基础验证</span></span><br><span class="line">        <span class="keyword">if</span> (!<span class="variable">$appid</span> || !<span class="variable">$version</span> || !<span class="variable">$nonce</span> || !<span class="variable">$timestamp</span> || !<span class="variable">$signature</span> || !<span class="variable">$uid</span> || !<span class="variable">$client_type</span> || !<span class="variable">$app_package</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> [<span class="string">&#x27;code&#x27;</span> =&gt; <span class="variable language_">$this</span>-&gt;error, <span class="string">&#x27;msg&#x27;</span> =&gt; <span class="string">&#x27;Missing authentication headers&#x27;</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 应用ID有效性验证</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$appid</span> !== <span class="variable language_">$this</span>-&gt;appId) &#123;</span><br><span class="line">            <span class="keyword">return</span> [<span class="string">&#x27;code&#x27;</span> =&gt; <span class="variable language_">$this</span>-&gt;error, <span class="string">&#x27;msg&#x27;</span> =&gt; <span class="string">&#x27;Invalid appid&#x27;</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 时间有效性验证</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">time</span>() - <span class="variable">$timestamp</span> &gt; <span class="variable language_">$this</span>-&gt;expireTime) &#123;</span><br><span class="line">            <span class="keyword">return</span> [<span class="string">&#x27;code&#x27;</span> =&gt; <span class="variable language_">$this</span>-&gt;error, <span class="string">&#x27;msg&#x27;</span> =&gt; <span class="string">&#x27;Request expired&#x27;</span>];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Nonce防重放</span></span><br><span class="line">        <span class="comment">// if (Cache::has(&#x27;api_nonce:&#x27;.$nonce)) &#123;</span></span><br><span class="line">        <span class="comment">//     throw new \Exception(&#x27;Duplicate request&#x27;, 401);</span></span><br><span class="line">        <span class="comment">// &#125;</span></span><br><span class="line">        <span class="comment">//Cache::set(&#x27;api_nonce:&#x27;.$nonce, 1, $this-&gt;expireTime);</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="variable">$body</span>)) &#123;</span><br><span class="line">            <span class="variable">$body</span> = <span class="string">&quot;&#123;&#125;&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 生成服务端签名</span></span><br><span class="line">        <span class="variable">$serverSign</span> = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">generateSign</span>([</span><br><span class="line">            <span class="string">&#x27;appid&#x27;</span>       =&gt; <span class="variable">$appid</span>,</span><br><span class="line">            <span class="string">&#x27;version&#x27;</span>     =&gt; <span class="variable">$version</span>,</span><br><span class="line">            <span class="string">&#x27;timestamp&#x27;</span>   =&gt; <span class="variable">$timestamp</span>,</span><br><span class="line">            <span class="string">&#x27;nonce&#x27;</span>       =&gt; <span class="variable">$nonce</span>,</span><br><span class="line">            <span class="string">&#x27;uid&#x27;</span>         =&gt; <span class="variable">$uid</span>,</span><br><span class="line">            <span class="string">&#x27;client_type&#x27;</span> =&gt; <span class="variable">$client_type</span>,</span><br><span class="line">            <span class="string">&#x27;app_package&#x27;</span> =&gt; <span class="variable">$app_package</span>,</span><br><span class="line">            <span class="string">&#x27;body&#x27;</span>        =&gt; <span class="variable">$body</span> // 请求体</span><br><span class="line">        ]);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 签名比对</span></span><br><span class="line">        <span class="keyword">if</span> (!<span class="title function_ invoke__">hash_equals</span>(<span class="variable">$serverSign</span>, <span class="variable">$signature</span>)) &#123;</span><br><span class="line">            <span class="keyword">return</span> [<span class="string">&#x27;code&#x27;</span> =&gt; <span class="variable language_">$this</span>-&gt;error, <span class="string">&#x27;msg&#x27;</span> =&gt; <span class="string">&#x27;Invalid signature&#x27;</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> [<span class="string">&#x27;code&#x27;</span> =&gt; <span class="variable language_">$this</span>-&gt;success, <span class="string">&#x27;msg&#x27;</span> =&gt; <span class="string">&#x27;success&#x27;</span>];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">generateSign</span>(<span class="params"><span class="keyword">array</span> <span class="variable">$params</span></span>): <span class="title">string</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">// 参数排序</span></span><br><span class="line">        <span class="title function_ invoke__">ksort</span>(<span class="variable">$params</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 拼接字符串</span></span><br><span class="line">        <span class="variable">$signStr</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="variable">$params</span> <span class="keyword">as</span> <span class="variable">$key</span> =&gt; <span class="variable">$value</span>) &#123;</span><br><span class="line">            <span class="variable">$signStr</span> .= <span class="string">&quot;<span class="subst">&#123;$key&#125;</span>=<span class="subst">&#123;$value&#125;</span>&amp;&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$signStr</span> = <span class="title function_ invoke__">rtrim</span>(<span class="variable">$signStr</span>, <span class="string">&#x27;&amp;&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用HMAC-SHA256</span></span><br><span class="line">        <span class="keyword">return</span> <span class="title function_ invoke__">hash_hmac</span>(<span class="string">&#x27;sha256&#x27;</span>, <span class="variable">$signStr</span>, <span class="variable">$this</span>-&gt;secretKey);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+]]></content>
+  </entry>
+  <entry>
+    <title>手动编译安装Swoole扩展</title>
+    <url>/2025/04/20/install_swoole_extension/</url>
+    <content><![CDATA[<h3 id="swoole-curl-setopt-option-10100-is-not-supported解决"><a href="#swoole-curl-setopt-option-10100-is-not-supported解决" class="headerlink" title="swoole_curl_setopt(): option[10100] is not supported解决"></a>swoole_curl_setopt(): option[10100] is not supported解决</h3><h3 id="安装-Swoole-扩展并启用-CURL-支持"><a href="#安装-Swoole-扩展并启用-CURL-支持" class="headerlink" title="安装 Swoole 扩展并启用 CURL 支持"></a>安装 Swoole 扩展并启用 CURL 支持</h3><p>在宝塔面板中，PHP 通常位于 <code>/www/server/php/你的PHP版本/bin</code> 目录下，例如 <code>/www/server/php/82/bin/phpize</code>。你需要根据你安装的 PHP 版本调整命令。</p>
+<h4 id="1-下载-Swoole-源码"><a href="#1-下载-Swoole-源码" class="headerlink" title="1. 下载 Swoole 源码"></a>1. <strong>下载 Swoole 源码</strong></h4><p>从 <a href="https://github.com/swoole/swoole-src/releases">Swoole GitHub</a> 下载最新的源码包。选择 <code>Source code(tar.gz)</code> 格式的文件进行下载。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget https://github.com/swoole/swoole-src/archive/refs/tags/v6.0.2.tar.gz</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-解压源码包"><a href="#2-解压源码包" class="headerlink" title="2. 解压源码包"></a>2. <strong>解压源码包</strong></h4><p>假设你已经下载了 <code>swoole-src-6.0.2.tar.gz</code> 文件，首先进入 PHP 安装目录：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /www/server/php/82</span><br></pre></td></tr></table></figure>
+
+<p>然后解压下载的 Swoole 源码包：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tar -zxvf swoole-src-6.0.2.tar.gz</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-进入源码目录"><a href="#3-进入源码目录" class="headerlink" title="3. 进入源码目录"></a>3. <strong>进入源码目录</strong></h4><p>解压后，进入 Swoole 源码目录：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> swoole-src-6.0.2</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-执行-phpize"><a href="#4-执行-phpize" class="headerlink" title="4. 执行 phpize"></a>4. <strong>执行 phpize</strong></h4><p>在编译 Swoole 扩展之前，需要先执行 <code>phpize</code> 命令来准备 PHP 扩展的编译环境。<code>phpize</code> 是 PHP 提供的一个工具，用于准备 PHP 扩展的编译过程，生成必要的配置文件。执行命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/www/server/php/82/bin/phpize</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>原理</strong>：<code>phpize</code>是PHP扩展开发工具，作用是将Swoole源码转换为PHP可识别的扩展模块。需使用对应PHP版本的phpize，否则会出现ABI版本不匹配错误。<code>phpize</code> 会检测当前的 PHP 环境并生成一个 <code>configure</code> 脚本，使得 Swoole 能够与 PHP 正常兼容。</p>
+</blockquote>
+<h4 id="5-配置编译选项"><a href="#5-配置编译选项" class="headerlink" title="5. 配置编译选项"></a>5. <strong>配置编译选项</strong></h4><p>执行 <code>configure</code> 命令时，加入 <code>--enable-swoole-curl</code> 参数来启用原生的 CURL 支持。并通过 <code>--with-php-config</code> 指定 PHP 配置工具的路径。执行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure --enable-swoole-curl --enable-openssl --with-php-config=/www/server/php/82/bin/php-config</span><br><span class="line">  make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>原理</strong>：<code>--enable-swoole-curl</code> 参数启用了 Swoole 扩展中的 CURL 支持，<code>--with-php-config</code> 则指定了 PHP 配置工具的路径，确保编译过程中 PHP 的正确配置,通过configure脚本生成Makefile，参数决定扩展功能和依赖库绑定方式。使用系统CURL可避免自研实现的兼容性问题。</p>
+</blockquote>
+<h4 id="6-编译和安装"><a href="#6-编译和安装" class="headerlink" title="6. 编译和安装"></a>6. <strong>编译和安装</strong></h4><p>完成配置后，执行 <code>make</code> 和 <code>make install</code> 命令来编译并安装 Swoole 扩展：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>原理</strong>：<code>make</code> 会编译 Swoole 扩展，<code>make install</code> 会将编译好的扩展安装到 PHP 扩展目录中。如果编译顺利，你会看到类似以下的输出，表示安装成功。</p>
+</blockquote>
+<p>如果编译时提示缺少 OpenSSL 开发库，需要先安装：</p>
+<p>CentOS&#x2F;RHEL:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install openssl-devel</span><br></pre></td></tr></table></figure>
+
+<p>Ubuntu&#x2F;Debian:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">apt-get install libssl-dev</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>/www/server/php/82/lib/php/extensions/no-debug-non-zts-20220829</code> 目录下，你会看到 <code>swoole.so</code> 文件：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /www/server/php/82/lib/php/extensions/no-debug-non-zts-20220829</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">fileinfo.so  igbinary.so  opcache.so  redis.so  swoole.so  zip.so</span><br></pre></td></tr></table></figure>
+
+<h4 id="7-修改-PHP-配置文件"><a href="#7-修改-PHP-配置文件" class="headerlink" title="7. 修改 PHP 配置文件"></a>7. <strong>修改 PHP 配置文件</strong></h4><p>在 PHP 配置文件中加载 Swoole 扩展。编辑 PHP 8.2 的 <code>php.ini</code> 文件，通常位于 <code>/www/server/php/82/etc/php.ini</code>，添加以下内容：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">extension=swoole.so</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>原理</strong>：这行配置指示 PHP 加载 <code>swoole.so</code> 扩展，以便 Swoole 扩展能够在 PHP 中生效。</p>
+</blockquote>
+<h4 id="8-重启-PHP-服务"><a href="#8-重启-PHP-服务" class="headerlink" title="8. 重启 PHP 服务"></a>8. <strong>重启 PHP 服务</strong></h4><p>修改完 <code>php.ini</code> 文件后，重启 PHP 服务以应用更改：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">service php-fpm restart</span><br></pre></td></tr></table></figure>
+
+<p>或者通过宝塔面板重启 PHP 服务。</p>
+<h4 id="9-验证安装"><a href="#9-验证安装" class="headerlink" title="9. 验证安装"></a>9. <strong>验证安装</strong></h4><p>执行以下命令来确认 Swoole 是否安装成功：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">php -m | grep swoole</span><br></pre></td></tr></table></figure>
+<p>如果输出 <code>swoole</code>，说明安装成功。</p>
+<p>验证是否成功启用 OpenSSL：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">php --ri swoole | grep openssl</span><br></pre></td></tr></table></figure>
+
+<p>应该能看到 openssl support &#x3D;&gt; enabled 的输出。</p>
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>通过上述步骤，你就能成功地编译并安装带有 CURL 支持的 Swoole 扩展。重要的是，确保在 <code>configure</code> 命令中添加了 <code>--enable-swoole-curl</code> 参数，这样可以启用原生 CURL 支持。编译过程中，<code>phpize</code> 和 <code>php-config</code> 工具的使用非常关键，它们帮助你确保扩展能够正确编译并与 PHP 配置兼容。</p>
+<p>如遇到编译错误，请检查系统是否已安装 PHP 开发包和相关依赖库。</p>
 ]]></content>
   </entry>
   <entry>
